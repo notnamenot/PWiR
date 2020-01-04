@@ -46,7 +46,7 @@ procedure Lab1 is
   end Print_Fibo;      
 
   function Mean(F1, F2 : Float) return Float is
-    (F1+F2)/2.0;
+    ((F1+F2)/2.0);
 
   function Factorial( N : Natural) return Natural is
 		(if N < 0 then raise Constraint_Error elsif N = 0 then 1 else Factorial(N-1)*N); 
