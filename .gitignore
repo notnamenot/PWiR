@@ -8,4 +8,8 @@
 # Ada Library Information
 *.ali
 
+# bin files
 
+lab1
+lab2
+main
