@@ -1,11 +1,17 @@
-with Ada.Text_IO, Ada.Numerics.Discrete_Random, alarms_pkg;
-use Ada.Text_IO, alarms_pkg;
+with Ada.Text_IO, Ada.Numerics.Discrete_Random, alarms_pkg,Ada.Task_Identification;
+use Ada.Text_IO, alarms_pkg,Ada.Task_Identification;
 
 
 procedure main is 
 --	Zn: Character := ' ';
 begin
-	null;
+	--null;
+	delay 0.5;
+	Put_Line("main");
+	
+	Add_To_Log("main start");
+
+	--null;
 --	delay 0.5;
 --	Print_Menu;
 --	loop 	
@@ -18,4 +24,11 @@ begin
 --	  		when others => Put_Line("Blad!!");
 --		end case;
 --	end loop;
+	--if True then
+	--	Put_Line("main");
+	--	Abort_Task (Current_Task);
+  	-- end if;
+	--Put_Line("End main");
+	--Add_To_Log("END main");
+  	--Close(Output);	
 end main;
