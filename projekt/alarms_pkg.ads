@@ -14,8 +14,11 @@ task Server is
 end Server;
 
 task Main_Thread is 
+	entry Turn_On_Alarm;
+	entry Turn_Off_Alarm;
 	entry Receive_Alarm(sensor_id: Integer);
 	entry Call_Police;
+	entry Set_Password;
 end Main_Thread;
 
 task RandomAlarmActivation;
@@ -24,8 +27,14 @@ task GUI;
 
 procedure Print_Menu;
 
-procedure Turn_On_Alarm;
+procedure Turn_On_Sensors;
 
-procedure Turn_Off_Alarm;
+procedure Turn_Off_Sensors;
+
+--function Set_Password_from_user return Integer;
+
+procedure Set_Password_from_user;
+
+function Validate_password_from_user return Boolean;
 
 end alarms_pkg;
