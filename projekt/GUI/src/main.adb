@@ -7,20 +7,21 @@ with Gtk.Window;      use Gtk.Window;
 with Gtk.Stack;       use Gtk.Stack;
 with Gtk.Handlers;
 with main_cb;         use main_cb;
+with alarms_pkg;      use alarms_pkg;
+with Ada.Text_IO, Ada.Numerics.Discrete_Random, Ada.Task_Identification;
+use Ada.Text_IO, Ada.Task_Identification;
 
 procedure Main is
 
-   Win    : Gtk_Window;
+   Win        : Gtk_Window;
 
    -----------------------------------
 
-   VBox   : Gtk_Vbox;
-   HBox1  : Gtk_Hbox;
-   HBox2  : Gtk_Hbox;
-   HBox3  : Gtk_Hbox;
-   HBox4  : Gtk_Hbox;
-   HBox4a : Gtk_Hbox;
-   HBox4b : Gtk_Hbox;
+   VBox       : Gtk_Vbox;
+   HBox1      : Gtk_Hbox;
+   HBox2      : Gtk_Hbox;
+   HBox3      : Gtk_Hbox;
+   HBox4      : Gtk_Hbox;
 
    Button0    : Gtk_Button;
    Button1    : Gtk_Button;
@@ -36,7 +37,7 @@ procedure Main is
    ButtonOK   : Gtk_Button;
    ButtonLOCK : Gtk_Button;
    ButtonHELP : Gtk_Button;
-   ButtonCLR : Gtk_Button;
+   ButtonCLR  : Gtk_Button;
 
    ButtonSTART: Gtk_Button;
    ButtonMENU : Gtk.Button.Gtk_Button;
@@ -51,6 +52,33 @@ procedure Main is
    ButtonPIN  : Gtk_Button;
    Sensor1    : Gtk_Label;
    Sensor2    : Gtk_Label;
+
+   ----------------------------------
+
+   VBoxCh     : Gtk_Vbox;
+   HBox1Ch    : Gtk_Hbox;
+   HBox2Ch    : Gtk_Hbox;
+   HBox3Ch    : Gtk_Hbox;
+   HBox4Ch    : Gtk_Hbox;
+
+   Button0Ch  : Gtk_Button;
+   Button1Ch  : Gtk_Button;
+   Button2Ch  : Gtk_Button;
+   Button3Ch  : Gtk_Button;
+   Button4Ch  : Gtk_Button;
+   Button5Ch  : Gtk_Button;
+   Button6Ch  : Gtk_Button;
+   Button7Ch  : Gtk_Button;
+   Button8Ch  : Gtk_Button;
+   Button9Ch  : Gtk_Button;
+
+   ButtonOKCh : Gtk_Button;
+   ButtonBCKCh: Gtk_Button;
+   ButtonCLRCh: Gtk_Button;
+
+
+   ----------------------------------
+   Zn: Character := ' ';
 
 begin
    --  Initialize GtkAda.
@@ -72,8 +100,6 @@ begin
    Gtk_New_Hbox(HBox2, True);
    Gtk_New_Hbox(HBox3, True);
    Gtk_New_Hbox(HBox4, True);
-   Gtk_New_Hbox(HBox4a, True);
-   Gtk_New_Hbox(HBox4b, True);
 
    -- Create a buttons
    Gtk_New (Button0, "0");
@@ -97,11 +123,14 @@ begin
    --  Add a label
    Gtk_New (Label, "");
    Label.Set_Text("____");
+
+   Gtk_New (Alarm_State, "Alarm state - inactive");
    --Set_Markup(GTk_Label(Label), "<span weight=""bold"" color=""blue"" size=""xx-large"">----</span>");
 
 
 
-   --  Packing Boxes
+   --  Keyboard
+   VBox.Add (Alarm_State);
    VBox.Add (Label);
    VBox.Add (HBox1);
    VBox.Add (HBox2);
@@ -152,6 +181,65 @@ begin
    VBoxM.Add(ButtonPIN);
    VBoxM.Add(ButtonBCK);
 
+   -- Change pin
+
+   Gtk_New_Vbox (VBoxCh, True);
+   Stack.Add_Named (VBoxCh, "ChangePin_view");
+
+   Gtk_New_Hbox(HBox1Ch, True);
+   Gtk_New_Hbox(HBox2Ch, True);
+   Gtk_New_Hbox(HBox3Ch, True);
+   Gtk_New_Hbox(HBox4Ch, True);
+
+   Gtk_New (New1, "Insert old password, then press 'OK'");
+   Gtk_New (Old, "----");
+   Gtk_New (New2, "----");
+
+   VBoxCh.Add(New1);
+   VBoxCh.Add(Old);
+   VBoxCh.Add(New2);
+
+
+   VBoxCh.Add(HBox1Ch);
+   VBoxCh.Add(HBox2Ch);
+   VBoxCh.Add(HBox3Ch);
+   VBoxCh.Add(HBox4Ch);
+
+   Gtk_New (Button0Ch, "0");
+   Gtk_New (Button1Ch, "1");
+   Gtk_New (Button2Ch, "2");
+   Gtk_New (Button3Ch, "3");
+   Gtk_New (Button4Ch, "4");
+   Gtk_New (Button5Ch, "5");
+   Gtk_New (Button6Ch, "6");
+   Gtk_New (Button7Ch, "7");
+   Gtk_New (Button8Ch, "8");
+   Gtk_New (Button9Ch, "9");
+
+   Gtk_New (ButtonOKCh, "OK");
+   Gtk_New (ButtonCLRCh, "Clear");
+   Gtk_New (ButtonBCKCh, "Back");
+
+
+   HBox1Ch.Add(Button1Ch);
+   HBox1Ch.Add(Button2Ch);
+   HBox1Ch.Add(Button3Ch);
+
+   HBox2Ch.Add(Button4Ch);
+   HBox2Ch.Add(Button5Ch);
+   HBox2Ch.Add(Button6Ch);
+
+   HBox3Ch.Add(Button7Ch);
+   HBox3Ch.Add(Button8Ch);
+   HBox3Ch.Add(Button9Ch);
+
+
+   HBox4Ch.Add(ButtonOKCh);
+   HBox4Ch.Add(Button0Ch);
+   HBox4Ch.Add(ButtonCLRCh);
+
+   VBoxCh.Add(ButtonBCKCh);
+
    --  Show the window and present it
    Win.Show_All;
    Win.Present;
@@ -182,6 +270,32 @@ begin
    BUttonSTART.On_Clicked(Start_clicked'Access);
    ButtonLOCK.On_Clicked(Start_clicked'Access);
    BUttonHELP.On_Clicked(Help_clicked'Access);
+
+
+
+   Button0Ch.On_Clicked(Zero_clickedCh'Access);
+   Button1Ch.On_Clicked(One_clickedCh'Access);
+   Button2Ch.On_Clicked(Two_clickedCh'Access);
+   Button3Ch.On_Clicked(Three_clickedCh'Access);
+   Button4Ch.On_Clicked(Four_clickedCh'Access);
+   Button5Ch.On_Clicked(Five_clickedCh'Access);
+   Button6Ch.On_Clicked(Six_clickedCh'Access);
+   Button7Ch.On_Clicked(Seven_clickedCh'Access);
+   Button8Ch.On_Clicked(Eight_clickedCh'Access);
+   Button9Ch.On_Clicked(Nine_clickedCh'Access);
+
+   ButtonOKCh.On_Clicked(OK_clickedCh'Access);
+   ButtonCLRCh.On_Clicked(Clear_clickedCh'Access);
+   ButtonBCKCh.On_Clicked(Back_clickedCh'Access);
+
+
    --  Start the Gtk+ main loop
    Gtk.Main.Main;
+
+   --null;
+   delay 0.5;
+   Put_Line("main");
+
+   Add_To_Log("main start");
+
 end Main;
