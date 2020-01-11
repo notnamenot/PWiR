@@ -8,8 +8,10 @@ is_alarm_active: Boolean := false;
 sensor_cnt : Integer := 0;
 Sensor1 : Sensor(1);
 Sensor2 : Sensor(2); 
+Sensor3 : Sensor(3);
 
---Sensors : array (1 .. 5) of Sensor(1);
+   
+--Sensors : array (1 .. 5) of Sensor;
 
 --package VectInt is new Ada.Containers.Vectors(Index_Type   => Natural, Element_Type => Sensor);	
 	
@@ -18,7 +20,7 @@ Sensor2 : Sensor(2);
 
 task body Server is
 begin
-	Create (File => Output,Mode => Out_File,Name => "LOG_alarms.txt");
+	Create (File => Output,Mode => Out_File,Name => "LOG_alarms.log");
 	--Put_Line("Server active");
 	Add_To_Log("server start");
 	loop
@@ -59,8 +61,8 @@ begin
 				Add_To_Log("Main_Thread: Turn_On_Alarm");
 				Turn_On_Sensors;
 			end Turn_On_Alarm;
-			
-		or
+				
+		or				-- only for comman line
 			accept Validate_Pass do 
 				Add_To_Log("Main_Thread: Validate_Pass");
 			end Validate_Pass;
@@ -72,27 +74,48 @@ begin
   			end Turn_Off_Alarm;
 		or
 			accept Receive_Alarm(sensor_id: Integer) do
-				Add_To_Log("Main_Thread: Receive_Alarm from sensor " & sensor_id'Img); 
+				Add_To_Log("Main_Thread: Receive_Alarm from sensor " & sensor_cnt'Img); 
 				Server.Received_Alarm(sensor_id);
 			end Receive_Alarm;
 		or 
 			accept Call_Police do 
 				Add_To_Log("Main_Thread: Call_Police"); 
-			end Call_Police;
+            		end Call_Police;
+            		Put_Line("Calling for help . . .");
 			Server.Call_Police;
 		or 
 			accept Set_Password do
 				Add_To_Log("Main_Thread: Set_Password");
 			end Set_Password;
-			GUI.Set_Pass;
+            		GUI.Set_Pass;
+            	--or
+            	--	accept Add_Sensor do -- TODO kontrola czy juz nie ma maxa
+              	--	Put_Line("Main_Thrad: Add_sensor");
+               	--	Add_To_Log("Main_Thread: Add_sensor, sensor_cnt=" & sensor_cnt'Img); 
+               	--	sensor_cnt := sensor_cnt + 1;
+            	--	Sensors(sensor_cnt).Add(sensor_cnt);  --poza do?       		
+               	--	end Add_Sensor;
 		or 
 			accept Finito;
+			put_Line("Main_thread: Finito start");
 			Sensor1.Finito;
+			put_Line("Main_thread: Finito sensor1");
 			Sensor2.Finito;
+		        put_Line("Main_thread: Finito sensor2");
+          		Sensor3.Finito;
+         		put_Line("Main_thread: Finito sensor3");  
+			--put_Line("Main_thread: Finito sensors");            
+            		--for I in Sensors'Range loop
+        		--	--if Sensors(I).id_sensor /= -1 then 
+         		--	Sensors(I).Finito;
+       			--	--end if;
+        		--end loop; 
 			GUI.Finito;
+			put_Line("Main_thread: Finito text gui");
 			RandomAlarmActivation.Finito;
+			put_Line("Main_thread: Finito random activation");
 			Server.Finito;	
-			put_Line("Main_thread: Finito");
+			put_Line("Main_thread: Finito end");
 			exit;
 		--or 
 		--	terminate;		
@@ -102,25 +125,29 @@ end Main_Thread;
 
 
 task body Sensor is 
-	sensor_id: Integer := id;
+      sensor_id: Integer := id; -- -1 dopoki nie dodamy sensora 
 begin 
 	delay 1.0;
-	Put_Line("Sensor task:" & sensor_id'Img & "start");
+	Put_Line("Sensor task:" & sensor_id'Img & " start");
 	
 	loop
-		select
+                select
+              	--	accept Add(id: in Integer) do
+               	--		sensor_id := id;
+                --        	Add_To_Log("Sensor: " & sensor_id'Img & " Added");
+                --		end Add;
+                --or
 			accept Start do
-				Add_To_Log("Sensor: " & sensor_id'Img & "Start");
+				Add_To_Log("Sensor: " & sensor_id'Img & " Start");
 			end Start;
-			is_alarm_active := true;
+			
 		or
 			accept Stop do
-				Add_To_Log("Sensor: " & sensor_id'Img & "Stop");
+				Add_To_Log("Sensor: " & sensor_id'Img & " Stop");
 			end Stop;
-			is_alarm_active := false;
 		or 
 			accept Activated do
-				Add_To_Log("Sensor: " & sensor_id'Img & "Activated");
+				Add_To_Log("Sensor: " & sensor_id'Img & " Activated");
 				Main_Thread.Receive_Alarm(sensor_id);
 			end Activated; 
 		or 
@@ -164,12 +191,13 @@ begin
 					Val := Random(Gen);
 					Put_Line("Alarm will be activated in " & Val'Img & "s");
 					Add_To_Log("RandomAlarmActivation: Alarm will be activated in " & Val'Img & "s");
-					delay Duration(Val);--5.0;
+               				delay Duration(Val);--5.0;
+               				--TODO aktywowac ajakas kontrolke
 					Add_To_Log("        is_alarm_active:" & is_alarm_active'Img); 
-					if is_alarm_active then Sensor1.Activated; end if;    	
+					if is_alarm_active then Sensor1.Activated; end if;    	--Sensors(1)
 					--end loop;	
 			else 
-				delay 2.0;
+				delay 1.0;
 			end if;
 		end select;
 	end loop;
@@ -190,7 +218,7 @@ begin
 end Print_Menu;
 
 task body GUI is
-	Zn: Character := ' ';
+	--Zn: Character := ' ';
 	is_pass_correct : Boolean := False;
 begin
 	
@@ -215,41 +243,69 @@ begin
 				Main_Thread.Receive_Alarm(0);
 			end if;
 		or 
-			accept Finito do
-				Add_To_Log("GUI: Finito");
+                        accept Finito do
+               			Put_Line("finito from gui");
+                                Add_To_Log("GUI: Finito");
 			end Finito;
-			exit;
+                        exit;
 		or	
-			delay 1.0;
-			Get_Immediate(Zn);
-			Add_To_Log("GUI: Get_Immediate(Zn):" & Zn);
-			exit when Zn = ASCII.ESC;
-			case Zn is
-		 		when '1' => Put_Line("Turning on alarm . . ."); Main_Thread.Turn_On_Alarm;
-				when '2' => Put_Line("Turning off alarm . . ."); Main_Thread.Validate_pass;
-				when '3' => Put_Line("Adding sensor . . .");
-				when '4' => Put_Line("Calling police . . ."); Main_Thread.Call_Police;
-				when '5' => Put_Line("Setting password . . ."); Main_Thread.Set_Password;
-				when '9' => Put_Line("Exitinig . . ."); Main_Thread.Finito;--Abort_Task (Current_Task);
-		  		when others => Put_Line("Blad!!");
-			end case;
+            		delay 1.0;
+            		--Command_Line_GUI;
 		
 		end select;
 	end loop;
 end GUI;
 
+   
+procedure Command_Line_GUI is
+    	Zn: Character := ' ';
+begin
+     	--Put_Line("stuck in GUI");
+	Get_Immediate(Zn);
+	Add_To_Log("GUI: Get_Immediate(Zn):" & Zn);
+	--exit when Zn = ASCII.ESC;
+	case Zn is
+      		when '1' => Put_Line("Turning on alarm . . ."); Main_Thread.Turn_On_Alarm;
+         	when '2' => Put_Line("Turning off alarm . . ."); Main_Thread.Validate_pass;
+		when '3' => Put_Line("Adding sensor . . .");
+		when '4' => Put_Line("Calling police . . ."); Main_Thread.Call_Police;
+		when '5' => Put_Line("Setting password . . ."); Main_Thread.Set_Password;
+		when '9' => Put_Line("Exitinig . . ."); Main_Thread.Finito;--Abort_Task (Current_Task);
+  		when others => Put_Line("Blad!!");
+	end case; 
+end Command_Line_GUI;
+   
 procedure Turn_On_Sensors is
 begin
 	Add_To_Log("Turn_On_Sensors");
 	Sensor1.Start;
-	Sensor2.Start;
+      	Sensor2.Start;
+        Sensor3.Start;
+     	--for I in Sensors'Range loop
+        --	--if Sensors(I).id_sensor /= -1 then 
+        -- 		Sensors(I).Start;
+       	--	--end if;
+        --end loop; 
+      	--if sensor_cnt /= 0 then
+        is_alarm_active := True;
+        --end if; 
 end Turn_On_Sensors;
 
 procedure Turn_Off_Sensors is
 begin
-	Add_To_Log("Turn_Off_Sensors");
+      	Add_To_Log("Turn_Off_Sensors");
+      	--for I in Sensors'Range loop
+        --	--if Sensors(I).id_sensor /= -1 then 
+        --		Sensors(I).Stop;
+       	--	--end if;
+        --end loop; 
+      
+      
 	Sensor1.Stop;
-	Sensor2.Stop;
+        Sensor2.Stop;
+        Sensor3.Stop;
+      	is_alarm_active := False;
+        Put_Line("Sensors Turned off");
 end Turn_Off_Sensors;
 
 procedure Set_Password_from_user is

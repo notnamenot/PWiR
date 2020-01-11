@@ -24,6 +24,9 @@ package main_cb is
    New1: Gtk_Label;
    New2: Gtk_Label;
    
+   WrongPass : Gtk_Label;
+   
+   procedure main_quit(Self : access Gtk_Widget_Record'Class); 
    procedure Menu_clicked (Self :  access Gtk_Button_Record'Class);
    procedure Back_clicked (Self :  access Gtk_Button_Record'Class);
    

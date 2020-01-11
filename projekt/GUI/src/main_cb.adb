@@ -3,6 +3,14 @@ with Ada.Text_IO; use Ada.Text_IO;
 with Gtk.Main;
 
 package body main_cb is
+   procedure main_quit (Self : access Gtk_Widget_Record'Class) is
+   begin
+      Put_Line("main on destroy");
+      Main_Thread.Finito;
+      Gtk.Main.Main_Quit;
+   end main_quit;
+   
+   
    ------Keyboard view---------------------------------------------------------
    procedure Menu_clicked (Self :  access Gtk_Button_Record'Class) is
    begin
@@ -69,9 +77,9 @@ package body main_cb is
       procedure Clear_clicked (Self :  access Gtk_Button_Record'Class) is
    begin
       Label.Set_Text("----");
+      WrongPass.Set_Text("");
       PIN_counter := 1;
    end Clear_clicked;
-   
         
    procedure Clear_Not_clicked  is
    begin
@@ -227,13 +235,15 @@ package body main_cb is
    begin
       if (Get_Text(Label) = password) and Try_counter<6 then
          Alarm_State.Set_Text("Alarm state - inactive");
+         WrongPass.Set_Text("");
          Main_Thread.Turn_Off_Alarm;
          Try_counter := 0;
       else
          Try_counter := Try_counter + 1;
+         WrongPass.Set_Text("Wrong Password!");
       end if;
       
-      if Try_counter > 5 then
+      if Try_counter > 2 then
          Main_Thread.Receive_Alarm(0);
       end if;
       
@@ -248,6 +258,7 @@ package body main_cb is
    
    procedure Add_clicked(Self :  access Gtk_Button_Record'Class) is
    begin
+      --Main_Thread.Add_Sensor;
       null;
    end Add_clicked;
    

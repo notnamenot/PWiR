@@ -10,6 +10,7 @@ password: String(1..4) := "0000";
 subtype Rand_Range is Integer range 5 .. 10;
 
 task type Sensor(id: Integer) is		-- Number to wyroznik - parametr typu zadaniowego 
+        --entry Add(id: in Integer); 
 	entry Start;
 	entry Stop;
 	entry Activated; 
@@ -23,6 +24,7 @@ task Server is
 end Server;
 
 task Main_Thread is 
+      	--entry Add_Sensor;
 	entry Turn_On_Alarm;
 	entry Validate_Pass;
 	entry Turn_Off_Alarm;
@@ -43,6 +45,8 @@ task GUI is
 end GUI;
 
 procedure Print_Menu;
+   
+procedure Command_Line_GUI;
 
 procedure Turn_On_Sensors;
 

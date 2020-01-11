@@ -88,11 +88,14 @@ begin
    Gtk_New (Win);
    Win.Set_Default_Size (400, 400);
 
+   Win.On_Destroy (main_quit'Access);
+
+
    --  Main Window
    Gtk_New (Stack);
    Win.Add (Stack);
 
-   -- Keyboard Windows
+   -- Keyboard Window
    Gtk_New_Vbox (VBox);
    Stack.Add_Named (VBox, "Keyboard_view");
 
@@ -122,6 +125,7 @@ begin
 
    --  Add a label
    Gtk_New (Label, "");
+   Gtk_New (WrongPass, "");
    Label.Set_Text("____");
 
    Gtk_New (Alarm_State, "Alarm state - inactive");
@@ -131,6 +135,7 @@ begin
 
    --  Keyboard
    VBox.Add (Alarm_State);
+   VBox.Add (WrongPass);
    VBox.Add (Label);
    VBox.Add (HBox1);
    VBox.Add (HBox2);
@@ -291,11 +296,5 @@ begin
 
    --  Start the Gtk+ main loop
    Gtk.Main.Main;
-
-   --null;
-   delay 0.5;
-   Put_Line("main");
-
-   Add_To_Log("main start");
 
 end Main;
