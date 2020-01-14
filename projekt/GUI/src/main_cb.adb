@@ -31,6 +31,8 @@ package body main_cb is
      
    procedure One_clicked (Self :  access Gtk_Button_Record'Class) is
    begin
+      Put(Ada.Characters.Latin_1.BEL);
+      Put(Character'Val(7));
       Update_Label('1');
    end One_clicked;
      
@@ -224,11 +226,38 @@ package body main_cb is
       Main_Thread.Call_Police;
    end Help_clicked;
    
+   procedure Lock_clicked(Self :  access Gtk_Button_Record'Class) is
+   begin
+      Alarm_State.Set_Text("Alarm state - active");                        
+      Main_Thread.Turn_On_Alarm;
+   end Lock_clicked;
+   
    procedure Start_clicked (Self :  access Gtk_Button_Record'Class) is
    begin
-      Alarm_State.Set_Text("Alarm state - active");
-                             
-      Main_Thread.Turn_On_Alarm;
+         
+      -- Debug window
+      Gtk_New(Win_dbg);
+      Win_dbg.Set_Default_Size (200, 100);
+      Gtk_New_Vbox (Vbox_dbg, True);
+      Win_dbg.Add(Vbox_dbg);
+   
+      Gtk_new(Label_dbg,"Alarm is turned off");
+      Gtk_New(Alarm_dbgON,"Alarm on");
+      Gtk_New(Alarm_dbgOFF,"Alarm off");
+      Gtk_New(Exit_dbg,"Exit");
+   
+   
+      Vbox_dbg.add(Label_dbg);  
+      Vbox_dbg.add(Alarm_dbgON);
+      Vbox_dbg.add(Alarm_dbgOFF);
+      Vbox_dbg.add(Exit_dbg); 
+   
+      Alarm_dbgON.On_Clicked(DBG_alarmON'Access);
+      Alarm_dbgOFF.On_Clicked(DBG_alarmOFF'Access);
+      Exit_dbg.On_Clicked(ExitFromDbg'Access);
+      
+      Win_dbg.Show_All;
+      Win_dbg.Present;
    end Start_clicked;
      
    procedure OK_clicked (Self :  access Gtk_Button_Record'Class) is
@@ -267,5 +296,37 @@ package body main_cb is
       null;
    end Del_clicked;
    
+      
+   procedure DBG_alarmON(Self :  access Gtk_Button_Record'Class) is
+   begin
+      Label_dbg.set_text("Alarm is ON");
+   end DBG_alarmON;
+   
+   procedure DBG_alarmOFF(Self :  access Gtk_Button_Record'Class) is
+   begin
+      Label_dbg.set_text("Alarm is OFF");
+   end DBG_alarmOFF;
+   
+   procedure ExitFromDbg(Self :  access Gtk_Button_Record'Class) is
+   begin
+      Win_dbg.Destroy;
+   end ExitFromDbg;
+   
+   function Alarm_noise return Boolean is
+   begin
+      Put_Line("timeout");
+      if(Sensor1_alarm) then
+         Alarm_State.Set_Text("Alarm state - active - Sensor 1 turned alarm!");
+      end if;
+      
+      if(Sensor2_alarm) then
+         Alarm_State.Set_Text("Alarm state - active - Sensor 2 turned alarm!");         
+      end if;
+      
+      if(Sensor3_alarm) then
+         Alarm_State.Set_Text("Alarm state - active - Sensor 3 turned alarm!");         
+      end if;
+      return True;
+   end Alarm_noise;
    
 end main_cb;

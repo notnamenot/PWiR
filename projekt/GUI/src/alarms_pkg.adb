@@ -70,13 +70,22 @@ begin
 		or
 			accept Turn_Off_Alarm do
 				Add_To_Log("Main_Thread: Turn_Off_Alarm");  
-				Turn_Off_Sensors;
+               Turn_Off_Sensors;
+               Sensor1_alarm := True;
+                  Sensor2_alarm := True;
+                  Sensor3_alarm := True;
   			end Turn_Off_Alarm;
 		or
 			accept Receive_Alarm(sensor_id: Integer) do
 				Add_To_Log("Main_Thread: Receive_Alarm from sensor " & sensor_cnt'Img); 
-				Server.Received_Alarm(sensor_id);
-			end Receive_Alarm;
+                                Server.Received_Alarm(sensor_id);
+               case sensor_id is
+                  when 1 => Sensor1_alarm := True;
+                  when 2 => Sensor2_alarm := True;
+                  when 3 => Sensor3_alarm := True;
+                     when others => null;
+                     end case;
+                        end Receive_Alarm;
 		or 
 			accept Call_Police do 
 				Add_To_Log("Main_Thread: Call_Police"); 

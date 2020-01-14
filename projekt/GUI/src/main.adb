@@ -7,14 +7,16 @@ with Gtk.Window;      use Gtk.Window;
 with Gtk.Stack;       use Gtk.Stack;
 with Gtk.Handlers;
 with main_cb;         use main_cb;
+with Glib.Main;       use Glib.Main;
 with alarms_pkg;      use alarms_pkg;
+with Gdk.Display;     use Gdk.Display;
 with Ada.Text_IO, Ada.Numerics.Discrete_Random, Ada.Task_Identification;
 use Ada.Text_IO, Ada.Task_Identification;
 
 procedure Main is
 
    Win        : Gtk_Window;
-
+--timeout
    -----------------------------------
 
    VBox       : Gtk_Vbox;
@@ -52,6 +54,7 @@ procedure Main is
    ButtonPIN  : Gtk_Button;
    Sensor1    : Gtk_Label;
    Sensor2    : Gtk_Label;
+   Sensor3    : Gtk_Label;
 
    ----------------------------------
 
@@ -77,8 +80,12 @@ procedure Main is
    ButtonCLRCh: Gtk_Button;
 
 
+
+
    ----------------------------------
    Zn: Character := ' ';
+   Timeout_ID : Glib.Main.G_Source_Id;
+   beep_char  : Integer := 7;
 
 begin
    --  Initialize GtkAda.
@@ -119,7 +126,7 @@ begin
    Gtk_New (ButtonOK, "OK");
    Gtk_New (ButtonLOCK, "LOCK");
    Gtk_New (ButtonHELP, "HELP");
-   Gtk_New (ButtonSTART, "START");
+   Gtk_New (ButtonSTART, "DBG");
    Gtk_New (ButtonMENU, "MENU");
    Gtk_New (ButtonCLR, "CLEAR");
 
@@ -172,6 +179,7 @@ begin
    Gtk_new(LabelM_list, "Name----ID----Location");
    Gtk_new(Sensor1, "Sensor1 0001 Living Room");
    Gtk_new(Sensor2, "Sensor2 0002 Bedroom no 1");
+   Gtk_new(Sensor3, "Sensor3 0003 Bedroom no 2");
 
    Gtk_new(ButtonNEW, "Add sensor");
    Gtk_new(ButtonDEL, "Delete sensor");
@@ -181,6 +189,7 @@ begin
    VBoxM.Add(LabelM_list);
    VBoxM.Add(Sensor1);
    VBoxM.Add(Sensor2);
+   VBoxM.Add(Sensor3);
    VBoxM.Add(ButtonNEW);
    VBoxM.Add(ButtonDEL);
    VBoxM.Add(ButtonPIN);
@@ -243,6 +252,7 @@ begin
    HBox4Ch.Add(Button0Ch);
    HBox4Ch.Add(ButtonCLRCh);
 
+
    VBoxCh.Add(ButtonBCKCh);
 
    --  Show the window and present it
@@ -273,9 +283,8 @@ begin
    ButtonPIN.On_Clicked(Change_clicked'Access);
    ButtonOK.On_Clicked(OK_clicked'Access);
    BUttonSTART.On_Clicked(Start_clicked'Access);
-   ButtonLOCK.On_Clicked(Start_clicked'Access);
+   ButtonLOCK.On_Clicked(Lock_clicked'Access);
    BUttonHELP.On_Clicked(Help_clicked'Access);
-
 
 
    Button0Ch.On_Clicked(Zero_clickedCh'Access);
@@ -293,7 +302,7 @@ begin
    ButtonCLRCh.On_Clicked(Clear_clickedCh'Access);
    ButtonBCKCh.On_Clicked(Back_clickedCh'Access);
 
-
+   Timeout_ID := Timeout_Add(1000000000, Alarm_noise'Access);
    --  Start the Gtk+ main loop
    Gtk.Main.Main;
 

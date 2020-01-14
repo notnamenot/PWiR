@@ -1,11 +1,14 @@
 with Gtk.Widget;   use Gtk.Widget;
 with Gtk.Button;   use Gtk.Button;
 with Gtk.Label;    use Gtk.Label;
+with Gtk.Box;      use Gtk.Box;
 with Glib.Object;
 with Gdk.Event;
 with Gtk.Stack;    use Gtk.Stack;
-with alarms_pkg;      use alarms_pkg;
-with Gtk.Window;      use Gtk.Window;
+with alarms_pkg;   use alarms_pkg;
+with Gtk.Window;   use Gtk.Window;
+with Glib.Main;       use Glib.Main;
+with Ada.Characters.Latin_1;
 
 package main_cb is
    
@@ -25,6 +28,14 @@ package main_cb is
    New2: Gtk_Label;
    
    WrongPass : Gtk_Label;
+   Win_dbg    : Gtk_Window; 
+   
+   ----------------------------------
+   Vbox_dbg   : Gtk_VBox;
+   Label_dbg  : Gtk_Label;
+   Exit_dbg   : Gtk_Button;
+   Alarm_dbgON: Gtk_Button;
+   Alarm_dbgOFF: Gtk_Button;
    
    procedure main_quit(Self : access Gtk_Widget_Record'Class); 
    procedure Menu_clicked (Self :  access Gtk_Button_Record'Class);
@@ -50,6 +61,7 @@ package main_cb is
    procedure Help_clicked(Self :  access Gtk_Button_Record'Class);
    
    procedure Start_clicked(Self :  access Gtk_Button_Record'Class);
+   procedure Lock_clicked(Self :  access Gtk_Button_Record'Class);
    
    procedure OK_clicked(Self :  access Gtk_Button_Record'Class);
    
@@ -79,5 +91,12 @@ package main_cb is
    
    
    procedure Update_LabelCh (dig : Character);
+   
+   
+   procedure DBG_alarmON(Self :  access Gtk_Button_Record'Class);
+   procedure DBG_alarmOFF(Self :  access Gtk_Button_Record'Class);
+   procedure ExitFromDbg(Self :  access Gtk_Button_Record'Class);
+
+   Function Alarm_noise return Boolean;
    
 end main_cb;

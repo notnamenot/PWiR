@@ -6,6 +6,9 @@ package alarms_pkg is
 
 Output : File_Type;
 password: String(1..4) := "0000";
+Sensor1_alarm: Boolean := False;  
+Sensor2_alarm: Boolean := False;  
+Sensor3_alarm: Boolean := False;  
 
 subtype Rand_Range is Integer range 5 .. 10;
 
