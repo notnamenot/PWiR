@@ -1,4 +1,5 @@
 with Ada.Text_IO; use Ada.Text_IO;
+with alarms_pkg;   use alarms_pkg;
 
 with Gtk.Main;
 
@@ -266,6 +267,10 @@ package body main_cb is
          Alarm_State.Set_Text("Alarm state - inactive");
          WrongPass.Set_Text("");
          Main_Thread.Turn_Off_Alarm;
+         Sensor1_alarm := False;  
+         Sensor2_alarm := False;  
+         Sensor3_alarm := False;  
+         Clear_Not_clicked;
          Try_counter := 0;
       else
          Try_counter := Try_counter + 1;
@@ -300,11 +305,16 @@ package body main_cb is
    procedure DBG_alarmON(Self :  access Gtk_Button_Record'Class) is
    begin
       Label_dbg.set_text("Alarm is ON");
+      is_dbg_active := True;
    end DBG_alarmON;
    
    procedure DBG_alarmOFF(Self :  access Gtk_Button_Record'Class) is
    begin
       Label_dbg.set_text("Alarm is OFF");
+      is_dbg_active := False;
+      Sensor1_alarm := False;  
+      Sensor2_alarm := False;  
+      Sensor3_alarm := False;  
    end DBG_alarmOFF;
    
    procedure ExitFromDbg(Self :  access Gtk_Button_Record'Class) is
@@ -314,18 +324,28 @@ package body main_cb is
    
    function Alarm_noise return Boolean is
    begin
-      Put_Line("timeout");
-      if(Sensor1_alarm) then
+     -- Put_Line("timeout");
+      if(Sensor1_alarm and is_alarm_active) then
          Alarm_State.Set_Text("Alarm state - active - Sensor 1 turned alarm!");
       end if;
       
-      if(Sensor2_alarm) then
+      if(Sensor2_alarm and is_alarm_active) then
          Alarm_State.Set_Text("Alarm state - active - Sensor 2 turned alarm!");         
       end if;
       
-      if(Sensor3_alarm) then
+      if(Sensor3_alarm and is_alarm_active) then
          Alarm_State.Set_Text("Alarm state - active - Sensor 3 turned alarm!");         
       end if;
+      
+      if (not Sensor1_alarm and not Sensor2_alarm and not Sensor3_alarm and is_alarm_active) then
+         Alarm_State.Set_Text("Alarm state - active"); 
+      end if;
+      
+      if(not is_alarm_active) then 
+         Alarm_State.Set_Text("Alarm state - inactive"); 
+      end if;
+      
+      
       return True;
    end Alarm_noise;
    

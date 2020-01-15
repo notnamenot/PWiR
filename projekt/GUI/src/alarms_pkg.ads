@@ -9,6 +9,12 @@ password: String(1..4) := "0000";
 Sensor1_alarm: Boolean := False;  
 Sensor2_alarm: Boolean := False;  
 Sensor3_alarm: Boolean := False;  
+is_dbg_active: Boolean := False;   
+is_alarm_active: Boolean := false;
+     
+sensor_cnt : Integer := 3;
+
+   
 
 subtype Rand_Range is Integer range 5 .. 10;
 
@@ -38,6 +44,8 @@ task Main_Thread is
 end Main_Thread;
 
 task RandomAlarmActivation is
+      	--entry Start;
+      	--entry Stop;
 	entry Finito;
 end RandomAlarmActivation;
 

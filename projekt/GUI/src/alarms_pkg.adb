@@ -3,13 +3,10 @@ use Ada.Text_IO,Ada.Calendar, Ada.Calendar.Formatting,Ada.Task_Identification;
 
 package body alarms_pkg is
 
-is_alarm_active: Boolean := false;
 
-sensor_cnt : Integer := 0;
 Sensor1 : Sensor(1);
 Sensor2 : Sensor(2); 
 Sensor3 : Sensor(3);
-
    
 --Sensors : array (1 .. 5) of Sensor;
 
@@ -190,7 +187,7 @@ begin
 			end Finito;
 			exit;
 		else
-			if is_alarm_active then
+			if is_dbg_active then--is_alarm_active then
 			
 			--select
 			--	when is_alarm_active =>
@@ -203,7 +200,10 @@ begin
                				delay Duration(Val);--5.0;
                				--TODO aktywowac ajakas kontrolke
 					Add_To_Log("        is_alarm_active:" & is_alarm_active'Img); 
-					if is_alarm_active then Sensor1.Activated; end if;    	--Sensors(1)
+               				if is_alarm_active then 
+                 			 	Sensor1.Activated; 
+                                                Sensor1_alarm := True;
+              				end if;    	--Sensors(1)
 					--end loop;	
 			else 
 				delay 1.0;
@@ -234,7 +234,7 @@ begin
 	delay 1.5;
 	Put_Line("gui active");
 	Add_To_Log("GUI start");
-	Print_Menu;
+	--Print_Menu;
 	loop 	
 		select 
 			accept Set_Pass do --;

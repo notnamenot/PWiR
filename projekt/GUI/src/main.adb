@@ -190,8 +190,8 @@ begin
    VBoxM.Add(Sensor1);
    VBoxM.Add(Sensor2);
    VBoxM.Add(Sensor3);
-   VBoxM.Add(ButtonNEW);
-   VBoxM.Add(ButtonDEL);
+   --VBoxM.Add(ButtonNEW);
+   --VBoxM.Add(ButtonDEL);
    VBoxM.Add(ButtonPIN);
    VBoxM.Add(ButtonBCK);
 
@@ -302,7 +302,7 @@ begin
    ButtonCLRCh.On_Clicked(Clear_clickedCh'Access);
    ButtonBCKCh.On_Clicked(Back_clickedCh'Access);
 
-   Timeout_ID := Timeout_Add(1000000000, Alarm_noise'Access);
+   Timeout_ID := Timeout_Add(750, Alarm_noise'Access);
    --  Start the Gtk+ main loop
    Gtk.Main.Main;
 
