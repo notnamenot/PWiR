@@ -27,6 +27,7 @@ package main_cb is
    New1: Gtk_Label;
    New2: Gtk_Label;
    
+   Password: String(1..4) := "0000";
    WrongPass : Gtk_Label;
    Win_dbg    : Gtk_Window; 
    

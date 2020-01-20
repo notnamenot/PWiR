@@ -1,74 +1,56 @@
 with Ada.Integer_Text_IO; use Ada.Integer_Text_IO;
 with Ada.Strings; use Ada.Strings;
 with Ada.Text_IO; use Ada.Text_IO;
+with Ada.Unchecked_Deallocation;
 
 package alarms_pkg is
-
-Output : File_Type;
-password: String(1..4) := "0000";
-Sensor1_alarm: Boolean := False;  
-Sensor2_alarm: Boolean := False;  
-Sensor3_alarm: Boolean := False;  
-is_dbg_active: Boolean := False;   
-is_alarm_active: Boolean := false;
-     
-sensor_cnt : Integer := 3;
-
    
+   pragma Elaborate_Body(alarms_pkg); --to ensure proper initialization
 
-subtype Rand_Range is Integer range 5 .. 10;
-
-task type Sensor(id: Integer) is		-- Number to wyroznik - parametr typu zadaniowego 
-        --entry Add(id: in Integer); 
-	entry Start;
-	entry Stop;
-	entry Activated; 
-	entry Finito;
-end Sensor;
-
-task Server is
-	entry Received_Alarm(sensor_id: in Integer);
-	entry Call_Police;
-	entry Finito;
-end Server;
-
-task Main_Thread is 
-      	--entry Add_Sensor;
-	entry Turn_On_Alarm;
-	entry Validate_Pass;
-	entry Turn_Off_Alarm;
-	entry Receive_Alarm(sensor_id: Integer);
-	entry Call_Police;
-	entry Set_Password;
-	entry Finito;
-end Main_Thread;
-
-task RandomAlarmActivation is
-      	--entry Start;
-      	--entry Stop;
-	entry Finito;
-end RandomAlarmActivation;
-
-task GUI is
-	entry Set_Pass;
-	entry Validate_Pass;
-	entry Finito;
-end GUI;
-
-procedure Print_Menu;
+   subtype Index is Integer range 1 .. 10;
+   subtype Random_Delay_Range is Integer range 3 .. 5;
    
-procedure Command_Line_GUI;
+   Output : File_Type;
+      
+   is_dbg_active: Boolean := False;
+   
+   is_alarm_active: Boolean := False;
+   
+   sensors_states: array (Index) of Boolean := (others => False);  --tablica mowiaca o tym czy dany czujnik ma byc wlaczony
+   
+   alarms_states:  array (Index) of Boolean := (others => False); --tablica mowiaca o tym czy i ktory alarm(czujnik) zostal aktywowany
+   
+   task type Sensor_Task_Type(sensor_id: Integer) is
+      entry Activate(sensor_id: in Integer);
+      entry Stop(sensor_id: in Integer);
+   end Sensor_Task_Type;
+      
+   type Sensor_Task_Type_Ptr is access all Sensor_Task_Type;
+   
+   procedure Free_Sensor is new Ada.Unchecked_Deallocation(Object => Sensor_Task_Type, Name => Sensor_Task_Type_Ptr);
+   
+   Sensors : array(Index) of Sensor_Task_Type_Ptr;
+   
+   task Server is
+      entry Received_Alarm(sensor_id: in Integer);
+      entry Call_Police;
+      entry Stop;
+   end Server;
 
-procedure Turn_On_Sensors;
+   task Main_Thread is 
+      entry Turn_Sensors_On;
+      entry Turn_Sensors_Off;
+      entry Receive_Alarm(sensor_id: Integer);
+      entry Call_Police;
+      entry Stop;
+   end Main_Thread;
+   
+   task Random_Alarm_Activation is
+      entry Stop;
+   end Random_Alarm_Activation;
 
-procedure Turn_Off_Sensors;
-
---function Set_Password_from_user return Integer;
-
-procedure Set_Password_from_user;
-
-function Validate_password_from_user(tmp : String) return Boolean;
-
-procedure Add_To_Log(line: string);
+   procedure Stop_Sensor_Tasks;
+   
+   procedure Add_To_Log(line: string);
 
 end alarms_pkg;
