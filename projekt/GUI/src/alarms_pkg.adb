@@ -210,7 +210,7 @@ package body alarms_pkg is
                else
                   Sensor_To_Activate := Random(Random_Sensor_Generator);  -- TODO losowac tylko z wlaczonych sensorow
                   Put_Line("Sensor_To_Activate" & Sensor_To_Activate'Img);
-                  while sensors_states(Sensor_To_Activate) /= True loop  --jesli czujnik ktory chcemy aktywowac wogle jest wlaczony
+                  while sensors_states(Sensor_To_Activate) /= True loop  --jesli czujnik ktory chcemy aktywowac w ogóle jest wlaczony
                      Sensor_To_Activate := Random(Random_Sensor_Generator);
                      Put_Line(Sensor_To_Activate'Img);
                   end loop;

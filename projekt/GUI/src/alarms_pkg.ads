@@ -17,6 +17,7 @@ package alarms_pkg is
    is_alarm_active: Boolean := False;
    
    sensors_states: array (Index) of Boolean := (others => False);  --tablica mowiaca o tym czy dany czujnik ma byc wlaczony
+   additional_sensors_states: array (Index) of Boolean := (others => False);  --tablica mowiaca o tym czy dany czujnik ma byc wlaczony
    
    alarms_states:  array (Index) of Boolean := (others => False); --tablica mowiaca o tym czy i ktory alarm(czujnik) zostal aktywowany
    

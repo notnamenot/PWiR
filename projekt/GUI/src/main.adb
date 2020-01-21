@@ -7,17 +7,25 @@ with Gtk.Window;      use Gtk.Window;
 with Gtk.Stack;       use Gtk.Stack;
 with Gtk.Handlers;
 with main_cb;         use main_cb;
+with Glib;            use Glib;
 with Glib.Main;       use Glib.Main;
 with alarms_pkg;      use alarms_pkg;
 with Gdk.Display;     use Gdk.Display;
+with Gtk.Combo_Box_Text;     use Gtk.Combo_Box_Text;
+with Gtk.GEntry;      use Gtk.GEntry;
+with Glib.Main;       use Glib.Main;
+with Gtk.List_Store;  use Gtk.List_Store;
+
+with Gtk.Toggle_Button; use Gtk.Toggle_Button;
+with Gtk.Check_Button;  use Gtk.Check_Button;
 with Ada.Text_IO, Ada.Numerics.Discrete_Random, Ada.Task_Identification;
 use Ada.Text_IO, Ada.Task_Identification;
 
 procedure Main is
 
    Win        : Gtk_Window;
---timeout
-   -----------------------------------
+
+   -----------------Keyboard view------------------
 
    VBox       : Gtk_Vbox;
    HBox1      : Gtk_Hbox;
@@ -44,19 +52,15 @@ procedure Main is
    ButtonSTART: Gtk_Button;
    ButtonMENU : Gtk.Button.Gtk_Button;
 
-   -----------------------------------
+   -----------------Menu view------------------
 
    VBoxM      : Gtk_Vbox;
    LabelM_list: Gtk_Label;
-   ButtonNEW  : Gtk_Button;
-   ButtonDEL  : Gtk_Button;
+   ButtonGRP  : Gtk_Button;
    ButtonBCK  : Gtk_Button;
    ButtonPIN  : Gtk_Button;
-   Sensor1    : Gtk_Label;
-   Sensor2    : Gtk_Label;
-   Sensor3    : Gtk_Label;
 
-   ----------------------------------
+   -----------------Change pin view-----------------
 
    VBoxCh     : Gtk_Vbox;
    HBox1Ch    : Gtk_Hbox;
@@ -79,14 +83,20 @@ procedure Main is
    ButtonBCKCh: Gtk_Button;
    ButtonCLRCh: Gtk_Button;
 
-
-
+   ----------------Turn By Group--------------------
+   Vbox_grp   : Gtk_Vbox;
+   Label_Grp  : Gtk_Label;
+   Grp1       : Gtk_Button;
+   Grp2       : Gtk_Button;
+   Grp3       : Gtk_Button;
+   Grp4       : Gtk_Button;
+   Grp5       : Gtk_Button;
+   Grp_Back   : Gtk_Button;
 
    ----------------------------------
    Zn: Character := ' ';
    Timeout_ID : Glib.Main.G_Source_Id;
    beep_char  : Integer := 7;
-
 begin
    --  Initialize GtkAda.
    Gtk.Main.Init;
@@ -101,6 +111,70 @@ begin
    --  Main Window
    Gtk_New (Stack);
    Win.Add (Stack);
+
+   -- Initial configuration
+   Gtk_New_Vbox (Vbox_conf);
+   Stack.Add_Named (Vbox_conf, "Init_config_view");
+   Gtk_New(Label_info1, "Add your sensors");
+
+   Gtk_New(Label_head1, "Sensor ID |");
+   Gtk_New(Label_head2, "Is Active |");
+   Gtk_New(Label_head3, "Is Entrance |");
+   Gtk_New(Label_head4, "Location |");
+   Gtk_New(Label_head5, "Sensor Group");
+
+
+   Vbox_conf.Add(Label_info1);
+
+   Gtk_New(Label_num(1), "Sensor 1");
+   Gtk_New(Label_num(2), "Sensor 2");
+   Gtk_New(Label_num(3), "Sensor 3");
+   Gtk_New(Label_num(4), "Sensor 4");
+   Gtk_New(Label_num(5), "Sensor 5");
+   Gtk_New(Label_num(6), "Sensor 6");
+   Gtk_New(Label_num(7), "Sensor 7");
+   Gtk_New(Label_num(8), "Sensor 8");
+   Gtk_New(Label_num(9), "Sensor 9");
+   Gtk_New(Label_num(10), "Sensor 10");
+
+
+   Gtk_New_Hbox(Hbox_conf(0),Spacing => 5);
+   Hbox_conf(0).Add(Label_head1);
+   Hbox_conf(0).Add(Label_head2);
+   Hbox_conf(0).Add(Label_head3);
+   Hbox_conf(0).Add(Label_head4);
+   Hbox_conf(0).Add(Label_head5);
+
+   Vbox_conf.Add(Hbox_conf(0));
+
+
+   for I in Integer range 1..10 loop
+      Gtk_New_Hbox(Hbox_conf(I),Spacing => 5);
+      Gtk_New(If_active(I));
+      Gtk_New(If_entrance(I));
+      Gtk_New(Room(I));
+      Gtk_New(Groups(I));
+
+      Append_Text (Groups(I), "1");
+      Append_Text (Groups(I), "2");
+      Append_Text (Groups(I), "3");
+      Append_Text (Groups(I), "4");
+      Append_Text (Groups(I), "5");
+
+      Set_Active (Groups(I), 0);
+
+      Hbox_conf(I).Add(Label_num(I));
+      Hbox_conf(I).Add(If_active(I));
+      Hbox_conf(I).Add(If_entrance(I));
+      Hbox_conf(I).Add(Room(I));
+      Hbox_conf(I).Add(Groups(I));
+
+      Vbox_conf.Add(Hbox_conf(I));
+   end loop;
+
+   Gtk_New(Done_Btn, "Done");
+   Vbox_conf.Add(Done_Btn);
+
 
    -- Keyboard Window
    Gtk_New_Vbox (VBox);
@@ -176,22 +250,22 @@ begin
    Gtk_New_Vbox (VBoxM, True);
    Stack.Add_Named (VBoxM, "Menu_view");
 
-   Gtk_new(LabelM_list, "Name----ID----Location");
-   Gtk_new(Sensor1, "Sensor1 0001 Living Room");
-   Gtk_new(Sensor2, "Sensor2 0002 Bedroom no 1");
-   Gtk_new(Sensor3, "Sensor3 0003 Bedroom no 2");
+   Gtk_new(LabelM_list, "Name----Location----Group");
 
-   Gtk_new(ButtonNEW, "Add sensor");
-   Gtk_new(ButtonDEL, "Delete sensor");
+   Gtk_new(ButtonGRP, "Turn by group");
    Gtk_new(ButtonBCK, "Back");
    Gtk_new(ButtonPIN, "Change Pin");
 
    VBoxM.Add(LabelM_list);
-   VBoxM.Add(Sensor1);
-   VBoxM.Add(Sensor2);
-   VBoxM.Add(Sensor3);
-   --VBoxM.Add(ButtonNEW);
-   --VBoxM.Add(ButtonDEL);
+
+   for J in Integer range 1..10 loop
+
+      Gtk_New(Sens_to_lab(J), "");
+      VBoxM.Add(Sens_to_lab(J));
+
+   end loop;
+
+   VBoxM.Add(ButtonGRP);
    VBoxM.Add(ButtonPIN);
    VBoxM.Add(ButtonBCK);
 
@@ -255,11 +329,37 @@ begin
 
    VBoxCh.Add(ButtonBCKCh);
 
+   --Group view
+   Gtk_New_Vbox(Vbox_grp, True);
+   Stack.Add_Named(Vbox_grp, "Group_view");
+
+
+   Gtk_New(Label_Grp, "Choose which group turn on");
+   Gtk_New(Label_Grp_Info, "");
+   Gtk_New(Grp1, "Group 1");
+   Gtk_New(Grp2, "Group 2");
+   Gtk_New(Grp3, "Group 3");
+   Gtk_New(Grp4, "Group 4");
+   Gtk_New(Grp5, "Group 5");
+   Gtk_New(Grp_Back, "Back");
+
+   Vbox_grp.Add(Label_Grp);
+   Vbox_grp.Add(Label_Grp_Info);
+   Vbox_grp.Add(Grp1);
+   Vbox_grp.Add(Grp2);
+   Vbox_grp.Add(Grp3);
+   Vbox_grp.Add(Grp4);
+   Vbox_grp.Add(Grp5);
+   Vbox_grp.Add(Grp_Back);
+
+
    --  Show the window and present it
    Win.Show_All;
    Win.Present;
 
    -- Buttons Handlers
+   Done_Btn.On_Clicked(Configuration_Done'Access);
+
    ButtonMENU.On_Clicked(Menu_clicked'Access);
    ButtonBCK.On_Clicked(Back_clicked'Access);
 
@@ -278,8 +378,7 @@ begin
    ButtonCLR.On_Clicked(Clear_clicked'Access);
 
 
-   ButtonNEW.On_Clicked(Add_clicked'Access);
-   ButtonDEL.On_Clicked(Del_clicked'Access);
+   ButtonGRP.On_Clicked(Group_clicked'Access);
    ButtonPIN.On_Clicked(Change_clicked'Access);
    ButtonOK.On_Clicked(OK_clicked'Access);
    BUttonSTART.On_Clicked(Start_clicked'Access);
@@ -302,7 +401,14 @@ begin
    ButtonCLRCh.On_Clicked(Clear_clickedCh'Access);
    ButtonBCKCh.On_Clicked(Back_clickedCh'Access);
 
-   Timeout_ID := Timeout_Add(750, Alarm_noise'Access);
+   Grp1.On_Clicked(Gr1_on'Access);
+   Grp2.On_Clicked(Gr2_on'Access);
+   Grp3.On_Clicked(Gr3_on'Access);
+   Grp4.On_Clicked(Gr4_on'Access);
+   Grp5.On_Clicked(Gr5_on'Access);
+   Grp_Back.On_Clicked(GrBack'Access);
+
+   Timeout_ID := Timeout_Add(1000, Alarm_noise'Access);
    --  Start the Gtk+ main loop
    Gtk.Main.Main;
 
