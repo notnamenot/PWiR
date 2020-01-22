@@ -118,7 +118,7 @@ begin
    Gtk_New(Label_info1, "Add your sensors");
 
    Gtk_New(Label_head1, "Sensor ID |");
-   Gtk_New(Label_head2, "Is Active |");
+   Gtk_New(Label_head2, "Add |");
    Gtk_New(Label_head3, "Is Entrance |");
    Gtk_New(Label_head4, "Location |");
    Gtk_New(Label_head5, "Sensor Group");

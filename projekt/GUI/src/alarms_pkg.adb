@@ -3,13 +3,13 @@ use Ada.Text_IO,Ada.Calendar, Ada.Calendar.Formatting,Ada.Task_Identification;
 
 
 package body alarms_pkg is
-
-   procedure Free_Sensor is 
-   begin
-      Put_Line("Free_sensor");
-   end;
+--  
+--     procedure Free_Sensor is 
+--     begin
+--        Put_Line("Free_sensor");
+--     end;
+--     
    
-
    task body Sensor_Task_Type is   --TODO przy inicjalizacji l_sensor_id jest zapisywany, nie trzeba parametryzowac wejsc
    l_sensor_id : Integer := 0;    
    begin
@@ -86,6 +86,7 @@ package body alarms_pkg is
          select 
             accept Receive_Alarm(sensor_id: Integer) do
                Add_To_Log("Main_Thread: Receive_Alarm from sensor " & sensor_id'Img); 
+               if sensor_id = 0 then Put_Line("Wrong password entered to many times"); end if;
                Server.Received_Alarm(sensor_id);
             end Receive_Alarm;
             
@@ -106,8 +107,9 @@ package body alarms_pkg is
             exit;	
             
          or 
-            accept Turn_Sensors_On;
-            is_alarm_active := True;
+            accept Turn_Sensors_On do
+               is_alarm_active := True;
+            end Turn_Sensors_On;
             for I in sensors_states'Range loop
                if sensors_states(I) = True and sensors(I) = null then  --sprawdzic czy wynullowane 
                   Put_Line("sensor" & I'Img & "turn on");
@@ -170,12 +172,12 @@ package body alarms_pkg is
 --     end Sensor;
    
    
-   task body Random_Alarm_Activation is --TODO task dzialajacy tylko jesli dbg jest wlaczony
+   task body Random_Alarm_Activation is --TODO task dzialajacy tylko jeslt dbg jest wlaczony
 --        package Random_Delay is new Ada.Numerics.Discrete_Random(Random_Delay_Range);
 --        use Random_Delay;
-      package Random_Sensor_Id is new Ada.Numerics.Discrete_Random(Index);
+      package Random_Sensor_Id is new Ada.Numerics.Discrete_Random(Index_range);
       use Random_Sensor_Id;
-      
+
       Sensor_To_Activate : Integer := 0;
       Time_To_Alarm_Activation : Integer := 5;
       --Random_Delay_Generator: Generator; 
@@ -193,13 +195,13 @@ package body alarms_pkg is
             
          else 
             if is_dbg_active and is_alarm_active then
-
+               Put_Line("random");
                --Reset(Random_Delay_Generator);
                Reset(Random_Sensor_Generator);
                
                --Time_To_Alarm_Activation := Random(Random_Delay_Generator);
                
-               Put_Line("Alarm will be activated in " & Time_To_Alarm_Activation'Img & "s");
+               --Put_Line("Alarm will be activated in " & Time_To_Alarm_Activation'Img & "s");
                Add_To_Log("Random_Alarm_Activation: Alarm will be activated in " & Time_To_Alarm_Activation'Img & "s");
                
                delay Duration(Time_To_Alarm_Activation);
@@ -208,16 +210,28 @@ package body alarms_pkg is
                   Put_Line("Przed debugiem wlacz alarm!!");
                     
                else
-                  Sensor_To_Activate := Random(Random_Sensor_Generator);  -- TODO losowac tylko z wlaczonych sensorow
-                  Put_Line("Sensor_To_Activate" & Sensor_To_Activate'Img);
-                  while sensors_states(Sensor_To_Activate) /= True loop  --jesli czujnik ktory chcemy aktywowac w ogóle jest wlaczony
-                     Sensor_To_Activate := Random(Random_Sensor_Generator);
-                     Put_Line(Sensor_To_Activate'Img);
-                  end loop;
-                  sensors(Sensor_To_Activate).Activate(Sensor_To_Activate);
+                  if not drawn then
+                     loop
+                        Sensor_To_Activate := Random(Random_Sensor_Generator);
+                        Put_Line(Sensor_To_Activate'Img);
+                       -- sensors_states(Sensor_To_Activate) = True;
+                        exit when sensors_states(Sensor_To_Activate) = True;
+                     end loop;   
+                     drawn := True;
+                     Put_Line("after llop");
+--                       Sensor_To_Activate := Random(Random_Sensor_Generator);  -- TODO losowac tylko z wlaczonych sensorow
+                     --Put_Line("Sensor_To_Activate" & Sensor_To_Activate'Img);
+--                       while sensors_states(Sensor_To_Activate) /= True loop  --jesli czujnik ktory chcemy aktywowac w ogóle jest wlaczony
+--                         
+--                         
+--                          
+--                       end loop;
+                     sensors(Sensor_To_Activate).Activate(Sensor_To_Activate);
+                  end if;
+                  
                end if;  
             --end if;    		
-            else 
+            else
                delay 1.0;
             end if;
          end select;
@@ -243,6 +257,11 @@ package body alarms_pkg is
       Put_Line(Output,line);		 	
    end Add_To_Log;
    
-   
+   procedure Turn_Alarm_Off is
+   begin
+      for I in Index_range loop
+            alarms_states(I) := false;
+         end loop;
+   end Turn_Alarm_Off;
    
 end alarms_pkg;

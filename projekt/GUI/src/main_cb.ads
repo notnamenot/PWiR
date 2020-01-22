@@ -43,7 +43,8 @@ package main_cb is
    Exit_dbg    : Gtk_Button;
    Alarm_dbgON : Gtk_Button;
    Alarm_dbgOFF: Gtk_Button;
-   
+   call_flag : Boolean := false;
+   tmp_int: integer := 0;
    
    --------Config View---------
    Vbox_conf   : Gtk_Vbox;
