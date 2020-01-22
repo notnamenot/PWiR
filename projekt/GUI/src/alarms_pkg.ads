@@ -10,8 +10,6 @@ package alarms_pkg is
 
    subtype Index_range is Integer range 1 .. 10;
    subtype Random_Delay_Range is Integer range 3 .. 5;
-   --CR : Constant String := Character'val(13);
-   --LF : Ada.Characters.Latin_1.LF;
    
    Output : File_Type;
    
@@ -21,14 +19,13 @@ package alarms_pkg is
    
    is_alarm_active: Boolean := False;
    
-   sensors_states: array (Index_range) of Boolean := (others => False);  --tablica mowiaca o tym czy dany czujnik ma byc wlaczony
+   sensors_states: array (Index_range) of Boolean := (others => False);             --tablica mowiaca o tym czy dany czujnik ma byc wlaczony
    additional_sensors_states: array (Index_range) of Boolean := (others => False);  --tablica mowiaca o tym czy dany czujnik ma byc wlaczony
-   
-   alarms_states:  array (Index_range) of Boolean := (others => False); --tablica mowiaca o tym czy i ktory alarm(czujnik) zostal aktywowany
+   alarms_states:  array (Index_range) of Boolean := (others => False);             --tablica mowiaca o tym czy i ktory alarm(czujnik) zostal aktywowany
    
    task type Sensor_Task_Type(sensor_id: Integer) is
-      entry Activate(sensor_id: in Integer);
-      entry Stop(sensor_id: in Integer);
+      entry Activate;
+      entry Stop;
    end Sensor_Task_Type;
       
    type Sensor_Task_Type_Ptr is access all Sensor_Task_Type;
@@ -52,6 +49,7 @@ package alarms_pkg is
    end Main_Thread;
    
    task Random_Alarm_Activation is
+      entry Start_draw;
       entry Stop;
       --entry Draw_sensor;
    end Random_Alarm_Activation;

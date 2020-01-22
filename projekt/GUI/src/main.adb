@@ -104,6 +104,7 @@ begin
    --  Create a window with a size of 400x400
    Gtk_New (Win);
    Win.Set_Default_Size (400, 400);
+   Win.Set_Title ("Alarm Simulation");
 
    Win.On_Destroy (main_quit'Access);
 

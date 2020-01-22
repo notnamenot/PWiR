@@ -18,20 +18,14 @@ package body alarms_pkg is
       loop 
          select 
             --accept Start;
-            accept Activate(sensor_id: in Integer) do -- czujnik cos wykryl
+            accept Activate do -- czujnik cos wykryl
                Put_Line("sensor task id in activate : " & l_sensor_id'Img);
-               Put_Line("Sensor: " & sensor_id'Img & " Activated");
-               --l_sensor_id := sensor_id;
                alarms_states(l_sensor_id) := True;
-               Put_Line("l_sensor_id" & l_sensor_id'Img);
             end Activate;
-            
             Main_Thread.Receive_Alarm(l_sensor_id);
          or
-            accept Stop(sensor_id: in Integer) do
+            accept Stop do
                Put_Line("sensor task id in stop : " & l_sensor_id'Img);
-               l_sensor_id := sensor_id;
-               Put_Line("Sensor: Received_Alarm from sensor: " & sensor_id'Img);
                Add_To_Log("Sensor: Stop");	
             end Stop;           
             exit;
@@ -94,7 +88,28 @@ package body alarms_pkg is
             accept Call_Police do 
                Add_To_Log("Main_Thread: Call_Police"); 
                Server.Call_Police;
-            end Call_Police;
+            end Call_Police;	
+            
+         or 
+            accept Turn_Sensors_On do
+               is_alarm_active := True;
+               for I in sensors_states'Range loop
+                  if sensors_states(I) = True and sensors(I) = null then  --sprawdzic czy wynullowane 
+                     Put_Line("sensor" & I'Img & "turned on");
+                     sensors(I) := new Sensor_Task_Type(I);
+                  end if;
+               end loop;
+            end Turn_Sensors_On;
+            
+         or 
+            accept Turn_Sensors_Off;
+            is_alarm_active := False;
+            for I in sensors_states'Range loop
+               if sensors_states(I) = False and sensors(I) /= null then
+                  Put_Line("sensor" & I'Img & "turned off");
+                  Free_Sensor(sensors(I));
+               end if;
+            end loop;
             
          or 
             accept Stop;
@@ -104,28 +119,7 @@ package body alarms_pkg is
             put_Line("Main_thread: Stop server");
             Stop_Sensor_Tasks;
             put_Line("Main_thread: Stop sensors");
-            exit;	
-            
-         or 
-            accept Turn_Sensors_On do
-               is_alarm_active := True;
-            end Turn_Sensors_On;
-            for I in sensors_states'Range loop
-               if sensors_states(I) = True and sensors(I) = null then  --sprawdzic czy wynullowane 
-                  Put_Line("sensor" & I'Img & "turn on");
-                  sensors(I) := new Sensor_Task_Type(I);
-               end if;
-            end loop;
-            
-         or 
-            accept Turn_Sensors_Off;
-            is_alarm_active := False;
-            for I in sensors_states'Range loop
-               if sensors_states(I) = False and sensors(I) /= null then
-                  Put_Line("sensor" & I'Img & "turn off");
-                  Free_Sensor(sensors(I));
-               end if;
-            end loop;
+            exit;
             
          end select;
       end loop;
@@ -179,7 +173,7 @@ package body alarms_pkg is
       use Random_Sensor_Id;
 
       Sensor_To_Activate : Integer := 0;
-      Time_To_Alarm_Activation : Integer := 5;
+      Time_To_Alarm_Activation : Integer := 2;
       --Random_Delay_Generator: Generator; 
       Random_Sensor_Generator : Generator;
       
@@ -192,48 +186,31 @@ package body alarms_pkg is
                Add_To_Log("Random_Alarm_Activation: Stop");
             end Stop;
             exit;
-            
-         else 
-            if is_dbg_active and is_alarm_active then
-               Put_Line("random");
-               --Reset(Random_Delay_Generator);
-               Reset(Random_Sensor_Generator);
-               
-               --Time_To_Alarm_Activation := Random(Random_Delay_Generator);
-               
-               --Put_Line("Alarm will be activated in " & Time_To_Alarm_Activation'Img & "s");
-               Add_To_Log("Random_Alarm_Activation: Alarm will be activated in " & Time_To_Alarm_Activation'Img & "s");
-               
-               delay Duration(Time_To_Alarm_Activation);
-                                   
-               if not is_alarm_active then 
-                  Put_Line("Przed debugiem wlacz alarm!!");
-                    
-               else
-                  if not drawn then
-                     loop
-                        Sensor_To_Activate := Random(Random_Sensor_Generator);
-                        Put_Line(Sensor_To_Activate'Img);
-                       -- sensors_states(Sensor_To_Activate) = True;
-                        exit when sensors_states(Sensor_To_Activate) = True;
-                     end loop;   
-                     drawn := True;
-                     Put_Line("after llop");
---                       Sensor_To_Activate := Random(Random_Sensor_Generator);  -- TODO losowac tylko z wlaczonych sensorow
-                     --Put_Line("Sensor_To_Activate" & Sensor_To_Activate'Img);
---                       while sensors_states(Sensor_To_Activate) /= True loop  --jesli czujnik ktory chcemy aktywowac w ogóle jest wlaczony
---                         
---                         
---                          
---                       end loop;
-                     sensors(Sensor_To_Activate).Activate(Sensor_To_Activate);
-                  end if;
-                  
-               end if;  
-            --end if;    		
+         
+         or 
+            accept Start_draw do
+               Add_To_Log("Random_Alarm_Activation: Start_draw; is_alarm_active" & is_alarm_active'Img);
+            end Start_draw;
+   
+            if not is_alarm_active then 
+               Put_Line("Przed debugiem wlacz alarm!!");
             else
-               delay 1.0;
-            end if;
+               Put_Line("random");
+               for I in Index_range loop Put(sensors_states(I)'Img & " "); end loop;
+               Reset(Random_Sensor_Generator);
+               delay Duration(Time_To_Alarm_Activation);
+               
+               loop
+                  Sensor_To_Activate := Random(Random_Sensor_Generator);
+                  Put_Line(Sensor_To_Activate'Img);
+                  
+                  exit when sensors_states(Sensor_To_Activate) = True;
+               end loop;   
+               sensors(Sensor_To_Activate).Activate;
+            end if;  
+         or 
+            delay 1.0;
+            
          end select;
       end loop;
    end Random_Alarm_Activation;

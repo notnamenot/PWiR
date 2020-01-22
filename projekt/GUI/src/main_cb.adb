@@ -12,6 +12,7 @@ package body main_cb is
    end main_quit;
    
    
+   -------------------------- Configuration ------------------------------------
    
    procedure Configuration_Done  (Self :  access Gtk_Button_Record'Class) is
    begin
@@ -44,7 +45,7 @@ package body main_cb is
       Stack.Set_Visible_Child_Name("Keyboard_view");
    end Configuration_Done;
    
-   ------Keyboard view---------------------------------------------------------
+   ------ Keyboard view---------------------------------------------------------
    procedure Menu_clicked (Self :  access Gtk_Button_Record'Class) is
    begin
       for I in Index_range loop
@@ -134,7 +135,7 @@ package body main_cb is
       PIN_counter := 1;
    end Clear_Not_clicked;
    
-   -------------Change Pin View -----------------------------------------------
+   ------------- Change Pin View -----------------------------------------------
    
    procedure Zero_clickedCh (Self :  access Gtk_Button_Record'Class) is
    begin
@@ -271,7 +272,7 @@ package body main_cb is
       Main_Thread.Call_Police;
       call_flag := true;
       tmp_int := 0;
-            Alarm_State.Set_Text("Calling security !");
+      Alarm_State.Set_Text("Calling security !");
    end Help_clicked;
    
    procedure Lock_clicked(Self :  access Gtk_Button_Record'Class) is
@@ -281,9 +282,9 @@ package body main_cb is
       
       for I in Index_range loop
          if additional_sensors_states(I) then
-            sensors_states(I) := true;
+            sensors_states(I) := True;
          else
-            sensors_states(I) := false;
+            sensors_states(I) := False;
          end if;
          
       end loop;
@@ -333,7 +334,7 @@ package body main_cb is
             alarms_states(I) := false;
          end loop;
          
-         sec45_timer:=0;
+         sec45_timer:= 0;
          Main_Thread.Turn_Sensors_Off;
          is_alarm_active := false;
          Clear_Not_clicked;
@@ -341,6 +342,7 @@ package body main_cb is
       else
          Try_counter := Try_counter + 1;
          WrongPass.Set_Text("Wrong Password!");
+         Clear_Not_clicked;
       end if;
       
       if Try_counter > 2 then
@@ -363,31 +365,31 @@ package body main_cb is
       null;
    end Group_clicked;
    
-   
+   -------------------------- DBG ---------------------------------
       
    procedure DBG_alarmON(Self :  access Gtk_Button_Record'Class) is
    begin
       Label_dbg.set_text("Alarm is ON");
       is_dbg_active := True;
-
-      --Random_Alarm_Activation;
+      drawn := False;
+      Random_Alarm_Activation.Start_draw;
    end DBG_alarmON;
    
    procedure DBG_alarmOFF(Self :  access Gtk_Button_Record'Class) is
    begin
       Label_dbg.set_text("Alarm is OFF");
       is_dbg_active := False;
-      drawn := False;
-      --Turn_Alarm_Off;  
+      sec45_timer := 0;
+      Turn_Alarm_Off;  
    end DBG_alarmOFF;
    
    procedure ExitFromDbg(Self :  access Gtk_Button_Record'Class) is
    begin
       Win_dbg.Destroy;
    end ExitFromDbg;
+
+   -------------------------- GR ---------------------------------
    
-   
-      
    procedure Gr1_ON(Self :  access Gtk_Button_Record'Class) is 
    begin
       Label_Grp_Info.Set_Text("Group 1 activated");
@@ -397,57 +399,58 @@ package body main_cb is
             sensors_states(I)  := true;
          end if;
       end loop;
-      Put_Line(is_dbg_active'Img & is_alarm_active'Img);
-     Main_Thread.Turn_Sensors_On;
       
+      Main_Thread.Turn_Sensors_On;
+      Put_Line(is_dbg_active'Img & is_alarm_active'Img);
    end Gr1_ON;
      
    procedure Gr2_ON(Self :  access Gtk_Button_Record'Class) is
    begin
       Label_Grp_Info.Set_Text("Group 2 activated");
       for I in Index_range loop
-         if additional_sensors_states(I)  and Group_no(I) = 2 then
-            sensors_states(I)  := true;
+         if additional_sensors_states(I) and Group_no(I) = 2 then
+            sensors_states(I) := true;
          end if;
       end loop;
       
-     Main_Thread.Turn_Sensors_On;
+      Main_Thread.Turn_Sensors_On;
+      Put_Line(is_dbg_active'Img & is_alarm_active'Img);
    end Gr2_ON;
      
    procedure Gr3_ON(Self :  access Gtk_Button_Record'Class) is
    begin
-         Label_Grp_Info.Set_Text("Group 3 activated");
+      Label_Grp_Info.Set_Text("Group 3 activated");
       for I in Index_range loop
-         if additional_sensors_states(I)  and Group_no(I) = 3 then
+         if additional_sensors_states(I) and Group_no(I) = 3 then
             sensors_states(I)  := true;
          end if;
       end loop;
       
-     Main_Thread.Turn_Sensors_On;
+      Main_Thread.Turn_Sensors_On;
    end Gr3_ON;
      
    procedure Gr4_ON(Self :  access Gtk_Button_Record'Class) is
    begin
-         Label_Grp_Info.Set_Text("Group 4 activated");
+      Label_Grp_Info.Set_Text("Group 4 activated");
       for I in Index_range loop
          if additional_sensors_states(I)  and Group_no(I) =4 then
             sensors_states(I)  := true;
          end if;
       end loop;
       
-     Main_Thread.Turn_Sensors_On;
+      Main_Thread.Turn_Sensors_On;
    end Gr4_ON;
      
    procedure Gr5_ON(Self :  access Gtk_Button_Record'Class) is
    begin
-         Label_Grp_Info.Set_Text("Group 5 activated");
+      Label_Grp_Info.Set_Text("Group 5 activated");
       for I in Index_range loop
          if additional_sensors_states(I)  and Group_no(I) =5 then
             sensors_states(I)  := true;
          end if;
       end loop;
       
-     Main_Thread.Turn_Sensors_On;
+      Main_Thread.Turn_Sensors_On;
       
    end Gr5_ON;
      
@@ -458,7 +461,7 @@ package body main_cb is
    end GrBack;
      
    
-   function Alarm_noise return Boolean is --TODO zerowa grupa w ktorej sa nieprzypisaen czujniki bo to miesza w losowaniu
+   function Alarm_noise return Boolean is --TODO zerowa grupa w ktorej sa nieprzypisane czujniki bo to miesza w losowaniu
       tmp_unbound : Unbounded_String;
    begin
       --Put_Line("Alarm_noise...");
@@ -469,7 +472,7 @@ package body main_cb is
             Alarm_State.Set_Text("Calling security !");
             delay 2.0;
             exit;
-         elsif sensors_states(I)  and alarms_states(I) and is_alarm_active and If_Entrance_bool(I) then
+         elsif sensors_states(I) and alarms_states(I) and is_alarm_active and If_Entrance_bool(I) then -- sensor turned on, alarm turned on, 
             
             Put_Line("Entrance If 1");
             sec45_timer := sec45_timer + 1;
@@ -487,7 +490,7 @@ package body main_cb is
                Alarm_State.Set_Text(To_String(tmp_unbound));
             end if;
             exit;
-         elsif sensors_states(I)  and alarms_states(I) and is_alarm_active then
+         elsif sensors_states(I) and alarms_states(I) and is_alarm_active then
             --Put_Line("If 2");
             tmp_unbound := To_Unbounded_String("Alarm state - active - Sensor ");
             Append(tmp_unbound, Integer'Image(I));
